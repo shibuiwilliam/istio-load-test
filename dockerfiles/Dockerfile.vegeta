@@ -1,0 +1,5 @@
+FROM golang:1.15.5-buster
+
+WORKDIR /opt/
+RUN go get -u github.com/tsenart/vegeta
+COPY target /opt/target
