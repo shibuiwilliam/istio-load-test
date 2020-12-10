@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapi-medium
+  namespace: go
+  labels:
+    app: goapi
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: goapi
+  template:
+    metadata:
+      labels:
+        app: goapi
+        version: medium
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - name: goapi-medium
+          image: shibui/istio-load-test:goapi_0.0.0
+          imagePullPolicy: Always
+          env:
+            - name: NUM
+              value: "10000"
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 3000m
+              memory: "300Mi"
+            requests:
+              cpu: 3000m
+              memory: "300Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: goapi
+  namespace: go
+  labels:
+    app: goapi
+spec:
+  ports:
+    - name: rest
+      port: 8080
+      protocol: TCP
+  selector:
+    app: goapi

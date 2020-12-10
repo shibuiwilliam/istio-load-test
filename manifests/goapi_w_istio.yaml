@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapi-medium
+  namespace: go
+  labels:
+    app: goapi
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: goapi
+  template:
+    metadata:
+      labels:
+        app: goapi
+        version: medium
+      annotations:
+        sidecar.istio.io/inject: "true"
+        sidecar.istio.io/proxyCPU: "256m"
+        sidecar.istio.io/proxyMemory: "128Mi"
+        proxy.istio.io/config: "{'concurrency':'8'}"
+    spec:
+      containers:
+        - name: goapi-medium
+          image: shibui/istio-load-test:goapi_0.0.0
+          imagePullPolicy: Always
+          env:
+            - name: NUM
+              value: "10000"
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 1000m
+              memory: "300Mi"
+            requests:
+              cpu: 1000m
+              memory: "300Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: goapi
+  namespace: go
+  labels:
+    app: goapi
+spec:
+  ports:
+    - name: rest
+      port: 8080
+      protocol: TCP
+  selector:
+    app: goapi
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: goapi
+  namespace: go
+spec:
+  host: goapi
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+  subsets:
+    - name: medium
+      labels:
+        version: medium
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: goapi
+  namespace: go
+spec:
+  hosts:
+    - goapi
+  http:
+    - route:
+        - destination:
+            host: goapi
+            subset: medium
+          weight: 100

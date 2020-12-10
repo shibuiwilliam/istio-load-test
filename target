@@ -1,0 +1,1 @@
+GET http://goapi.go.svc.cluster.local:8080/add
