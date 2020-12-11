@@ -19,7 +19,6 @@ spec:
         sidecar.istio.io/inject: "true"
         sidecar.istio.io/proxyCPU: "256m"
         sidecar.istio.io/proxyMemory: "128Mi"
-        proxy.istio.io/config: "{'concurrency':'8'}"
     spec:
       containers:
         - name: goapi-medium

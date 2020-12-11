@@ -7,7 +7,6 @@ metadata:
     sidecar.istio.io/inject: "true"
     sidecar.istio.io/proxyCPU: "256m"
     sidecar.istio.io/proxyMemory: "1Gi"
-    proxy.istio.io/config: "{'concurrency':'2'}"
 spec:
   containers:
     - name: vegeta
